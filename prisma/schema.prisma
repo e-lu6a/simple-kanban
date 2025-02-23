@@ -1,0 +1,32 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Board {
+  id    Int    @id @default(autoincrement())
+  title String @default("")
+  items Item[]
+}
+
+model Item {
+  id      Int    @id @default(autoincrement())
+  content String
+  style   Style?
+  boardId Int
+  board   Board  @relation(fields: [boardId], references: [id])
+}
+
+model Style {
+  color String
+
+  itemId Int  @unique
+  item   Item @relation(fields: [itemId], references: [id])
+}
