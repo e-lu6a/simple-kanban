@@ -11,7 +11,7 @@ import { List } from "./List";
 import axios from "axios";
 
 function App() {
-  const boards = ["one", "two"];
+  const lists = ["one", "two"];
   const [items, setItems] = useState(["1", "2", "3"]);
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -28,8 +28,9 @@ function App() {
       });
     }
 
+    // call the backend~!
     // get data from server when item is dragged, and display in FE console
-    axios.get("http://localhost:8080").then((data) => console.log(data));
+    axios.get("http://localhost:8080/").then((data) => console.log(data));
   }
 
   return (
@@ -53,7 +54,7 @@ function App() {
             paddingTop: "150px",
           }}
         >
-          {boards.map((id) => (
+          {lists.map((id) => (
             <List id={id} items={items} key={id} />
           ))}
         </div>
