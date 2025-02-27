@@ -8,13 +8,14 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { List } from "./List";
+import axios from "axios";
 
 function App() {
   const boards = ["one", "two"];
   const [items, setItems] = useState(["1", "2", "3"]);
   const sensors = useSensors(useSensor(PointerSensor));
 
-  function handleDragEnd(event) {
+  function handleDragEnd(event: any) {
     const { active, over } = event;
 
     if (active.id !== over.id) {
@@ -26,6 +27,9 @@ function App() {
         return reordered;
       });
     }
+
+    // get data from server when item is dragged, and display in FE console
+    axios.get("http://localhost:8080").then((data) => console.log(data));
   }
 
   return (

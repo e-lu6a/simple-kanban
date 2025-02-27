@@ -1,3 +1,5 @@
+// in root folder, npx tsx prisma-test.ts
+
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
