@@ -17,11 +17,12 @@ model Board {
 }
 
 model Item {
-  id      Int    @id @default(autoincrement())
-  content String
-  style   Style?
-  boardId Int
-  board   Board  @relation(fields: [boardId], references: [id])
+  id        Int     @id @default(autoincrement())
+  content   String
+  style     Style?
+  completed Boolean @default(false)
+  boardId   Int
+  board     Board   @relation(fields: [boardId], references: [id])
 }
 
 model Style {

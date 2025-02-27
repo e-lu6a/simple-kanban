@@ -4,7 +4,13 @@ import {
 } from "@dnd-kit/sortable";
 import { Item } from "./Item";
 
-export function List(props: { id: string; items: Array<string> }) {
+interface BoardProps {
+  id: number;
+  title: string;
+  items: Array<string>;
+}
+
+export function BoardComponent(props: BoardProps) {
   const items = props.items;
   const listId = props.id;
 
@@ -17,7 +23,7 @@ export function List(props: { id: string; items: Array<string> }) {
         padding: "30px",
       }}
     >
-      <div style={{ textAlign: "center" }}>{listId}</div>
+      <div style={{ textAlign: "center" }}>{props.title}</div>
       <hr />
       <SortableContext items={items} strategy={verticalListSortingStrategy}>
         {items.map((itemId) => (

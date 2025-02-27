@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   DndContext,
   useSensor,
@@ -7,11 +7,22 @@ import {
   closestCenter,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { List } from "./List";
-import axios from "axios";
+import { BoardComponent } from "./Board";
+import axios, { AxiosResponse } from "axios";
+import type { Board } from "@prisma/client";
 
 function App() {
-  const lists = ["one", "two"];
+  const [boards, setBoards] = useState<Board[]>([]);
+
+  // get boards at first load only (for now)
+  useEffect(() => {
+    axios
+      .get("http://localhost:8080/boards/")
+      .then((response) => setBoards(response.data))
+      .catch((error) => console.error("error fetching boards: ", error));
+  }),
+    [];
+
   const [items, setItems] = useState(["1", "2", "3"]);
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -27,10 +38,6 @@ function App() {
         return reordered;
       });
     }
-
-    // call the backend~!
-    // get data from server when item is dragged, and display in FE console
-    axios.get("http://localhost:8080/").then((data) => console.log(data));
   }
 
   return (
@@ -54,8 +61,13 @@ function App() {
             paddingTop: "150px",
           }}
         >
-          {lists.map((id) => (
-            <List id={id} items={items} key={id} />
+          {boards.map((board) => (
+            <BoardComponent
+              id={board.id}
+              key={board.id}
+              title={board.title}
+              items={items}
+            />
           ))}
         </div>
       </DndContext>
