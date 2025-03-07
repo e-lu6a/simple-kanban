@@ -1,8 +1,15 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useRef } from "react";
+import { Item } from "@prisma/client";
 
-export function Item(props) {
+interface ItemProps {
+  id: number;
+  key: number;
+  item: Item;
+}
+
+export function ItemComponent(props: ItemProps) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
       id: props.id,
@@ -10,7 +17,7 @@ export function Item(props) {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   // update textArea height based on input
-  function handleValueChange(e) {
+  function handleValueChange(e: any) {
     e.target.style.height = "auto";
     const contentHeight = e.target.scrollHeight;
     e.target.style.height = `${contentHeight}px`;
@@ -46,6 +53,7 @@ export function Item(props) {
         <textarea
           ref={textAreaRef}
           rows={1}
+          defaultValue={props.item.content}
           style={{
             boxSizing: "border-box",
             fontFamily: "inherit",

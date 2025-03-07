@@ -23,6 +23,11 @@ model Item {
   completed Boolean @default(false)
   boardId   Int
   board     Board   @relation(fields: [boardId], references: [id])
+
+  nextItem Item? @relation("linkedlist")
+
+  prevItemId Int?  @unique
+  prevItem   Item? @relation("linkedlist", fields: [prevItemId], references: [id])
 }
 
 model Style {

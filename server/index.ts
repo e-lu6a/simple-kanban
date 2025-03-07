@@ -17,13 +17,20 @@ app.get('/test/', (req, res) => {
     res.send("this is a sample response to the test endpoint");
 });
 
+// gets all boards
 app.get('/boards/', async (req, res) => {
     const boards = await prisma.board.findMany({
-        include: {
-            items: true,
-        }
+        // include: {
+        //     items: true,
+        // }
     })
     res.json(boards);
+})
+
+// get all items
+app.get('/items/', async (req, res) => {
+    const items = await prisma.item.findMany({})
+    res.json(items);
 })
 
 const server = app.listen(8080, () => {

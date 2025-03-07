@@ -6,37 +6,98 @@ import {
   useSensors,
   closestCenter,
 } from "@dnd-kit/core";
-import { arrayMove } from "@dnd-kit/sortable";
 import { BoardComponent } from "./Board";
-import axios, { AxiosResponse } from "axios";
-import type { Board } from "@prisma/client";
+import axios from "axios";
+import type { Prisma, Board, Item } from "@prisma/client";
 
 function App() {
   const [boards, setBoards] = useState<Board[]>([]);
+  const [items, setItems] = useState<Item[]>([]);
+  const [activeItemId, setActiveItemId] = useState();
 
   // get boards at first load only (for now)
   useEffect(() => {
-    axios
-      .get("http://localhost:8080/boards/")
-      .then((response) => setBoards(response.data))
-      .catch((error) => console.error("error fetching boards: ", error));
-  }),
-    [];
+    const fetchData = async () => {
+      try {
+        const [boardsResponse, itemsResponse] = await Promise.all([
+          axios.get("http://localhost:8080/boards"),
+          axios.get("http://localhost:8080/items"),
+        ]);
 
-  const [items, setItems] = useState(["1", "2", "3"]);
+        setBoards(boardsResponse.data);
+        setItems(itemsResponse.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const sensors = useSensors(useSensor(PointerSensor));
+
+  // a lot of code from: https://codesandbox.io/p/sandbox/dnd-kit-multi-containers-lknfe?file=%2Fsrc%2Fapp.js%3A86%2C18
+
+  // function handleDragStart(event: any) {
+  //   setActiveItemId(event.active.id);
+  // }
+
+  // function handleDragOver(event) {
+  //   const { active, over, draggingRect } = event;
+  //   const activeItemId = active.id;
+
+  //   const activeBoardId = items.find((item) => item.id == active.id)?.boardId;
+  //   const overBoardId = items.find((item) => item.id == over.id)?.boardId;
+
+  //   if (!activeBoardId || !overBoardId || activeBoardId == overBoardId) {
+  //     return;
+  //   }
+
+  //   // need to setItems here..
+  // }
+
+  function getItemIndex(itemId: number) {}
 
   function handleDragEnd(event: any) {
     const { active, over } = event;
-
     if (active.id !== over.id) {
-      setItems((items) => {
-        const oldIndex = items.indexOf(active.id);
-        const newIndex = items.indexOf(over.id);
+      const activeItem = items.find((item) => item.id == active.id);
+      const overItem = items.find((item) => item.id == over.id);
 
-        const reordered = arrayMove(items, oldIndex, newIndex);
-        return reordered;
+      if (!activeItem || !overItem) return;
+
+      const isActiveDirectlyAboveOver = overItem.prevItemId === activeItem.id;
+      const nextItem = isActiveDirectlyAboveOver
+        ? items.find((item) => item.prevItemId === over.id)
+        : items.find((item) => item.prevItemId == active.id);
+
+      const reordered = items.map((i) => {
+        if (activeItem && overItem)
+          if (i.id === activeItem.id) {
+            return {
+              ...i,
+              prevItemId: isActiveDirectlyAboveOver
+                ? overItem.id
+                : overItem.prevItemId,
+            };
+          } else if (i.id === overItem.id) {
+            return {
+              ...i,
+              prevItemId: isActiveDirectlyAboveOver
+                ? activeItem.prevItemId
+                : activeItem.id,
+            };
+          } else if (nextItem && i.id === nextItem.id) {
+            return {
+              ...i,
+              prevItemId: isActiveDirectlyAboveOver
+                ? activeItem.id
+                : overItem.id,
+            };
+          }
+        return i;
       });
+      setItems(reordered);
     }
   }
 
@@ -66,7 +127,7 @@ function App() {
               id={board.id}
               key={board.id}
               title={board.title}
-              items={items}
+              items={items.filter((item) => item.boardId === board.id)}
             />
           ))}
         </div>
